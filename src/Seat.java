@@ -1,6 +1,6 @@
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Time;
 import java.time.LocalTime;
@@ -14,7 +14,7 @@ public class Seat {
 
     LocalTime EndTime;
 
-    public Seat(int seatNum, Boolean using, StartTime, EndTime;) {
+    public Seat(int seatNum, Boolean using, LocalTime StartTime, LocalTime EndTime) {
         this.seatNum = seatNum;
         this.using = using;
         this.StartTime = getStartTime();
@@ -42,15 +42,20 @@ public class Seat {
         this.using = using;
     }
 
-    public void getStartTime() {
+    public LocalTime getStartTime() {
         return StartTime;
     }
 
-    public void getEndTime() { //StartTime + 5시간으로 설정할 수 있도록
-        return EndTime+5;
+    public LocalTime getEndTime() { //StartTime + 5시간으로 설정할 수 있도록
+        LocalTime now = LocalTime.now();
+        return now.plusHours(5);
     }
 
-    final String filename = "src/KuLibrary1/seatData.csv";
+    public boolean displayStatus(){
+        return using ? true : false;
+    }
+
+    static String filename = "src/KuLibrary1/seatData.csv";
 
 
     public void reservation_Menu() {
@@ -93,6 +98,7 @@ public class Seat {
         int personNum;
         Scanner sc = new Scanner(System.in);
         printSeat();
+        Seat seat = new Seat();
 
         while (true) {
             System.out.println("사용하고자하는 좌석을 입력해주세요. q 입력 시 예약 메뉴로 돌아갑니다.");
@@ -127,13 +133,13 @@ public class Seat {
             ArrayList<Seat> tmprooms = new ArrayList<>();
             System.out.println("---------------");
             System.out.println("좌석 내역 출력");
-            //사용 안하고 있는 좌석 번호, 예약 시간, 종료 시간 보이게
+            //사용하고 있는 좌석 번호와 시작 시간, 종료 시간 출력. 사용 안하고 있다면 사용 중인 정보가 없습니다. 출력.
 
         }
     }
 
 
-    public void printSeat(){
+    public void printSeat(){ //동희가 적은 부분
         ArrayList<Seat> seats=new ArrayList<>();
         System.out.println("잔여 좌석입니다.");
         Iterator<Seat> iterator=seats.iterator();
@@ -146,65 +152,38 @@ public class Seat {
         return;
     }
 
-
-
-    public void toCsv() {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-            ArrayList<Seat> csvarr = new ArrayList<>();
-            for(int i=0;i<seat.size();i++){
-                csvarr.add(seat.get(i));
+    public static void toCsv(List<Seat> seats) {
+        Path path = Paths.get(filename);
+        try (BufferedWriter bw = Files.newBufferedWriter(path)) {
+            for (Seat seat : seats) {
+                String line = seat.seatNum + "," + seat.using + "," + seat.StartTime + "," + seat.EndTime;
+                bw.write(line);
+                bw.newLine();
             }
-            for(int i=0;i<past_seat.size();i++){
-                csvarr.add(past_seat.get(i));
-            }
-            Comparator<Seat> roomComparator = new Comparator<Seat>() {
-                @Override
-                public int compare(Seat o1, Seat o2) {
-                    return Integer.compare(o1.SeatNum, o2.SeatNum);
-                }
-            };
-
-            Collections.sort(csvarr,roomComparator);
-            for (Seat r : csvarr) {
-                writer.write(r.getSeatNum() + "," + r.getUsing() + "," + r.getStartTime() + "," + r.getEndTime() +"\n");
-            }
-            writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("파일을 쓰는 중 오류가 발생했습니다.");
         }
     }
 
-    public void fromCsv() {
-        BufferedReader br;
-
-        try (FileReader fileReader = new FileReader(filename)) {
-            br = Files.newBufferedReader(Paths.get(filename));
-            String line = "";
-
+    public static List<Seat> fromCsv() {
+        List<Seat> seats = new ArrayList<>();
+        Path path = Paths.get(filename);
+        try (BufferedReader br = Files.newBufferedReader(path)) {
+            String line;
             while ((line = br.readLine()) != null) {
-                if (line.isEmpty()) {
-                    break;
-                }
-                String[] array = line.split(",");
-                if(!array[3].equals("X") && !array[4].equals("X")){ //예약이 되어있는 RoomInfo 중에서
-                    if(Integer.parseInt(array[4]) < Integer.parseInt(date)){ //checkout 날짜가 현재 날짜보다 작은 경우 (과거예약내역)
-                        Seat room = new Seat(Integer.parseInt(array[0]), array[1], array[2], array[3]);
-                        past_seat.add(room);
-                        continue;
-                    }
-                }
-                Seat room = new Seat(Integer.parseInt(array[0]), array[1], array[2], array[3]);
-                seat.add(room);
+                String[] data = line.split(",");
+                int seatNum = Integer.parseInt(data[0]);
+                boolean using = Boolean.parseBoolean(data[1]);
+                LocalTime startTime = LocalTime.parse(data[2]);
+                LocalTime endTime = LocalTime.parse(data[3]);
+                seats.add(new Seat(seatNum, using, startTime, endTime));
             }
-            fileReader.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(0);
+        } catch (IOException e) {
+            System.out.println("파일을 읽는 중 오류가 발생했습니다.");
         }
+        return seats;
     }
+
 
     public void admin_Menu() {
 
