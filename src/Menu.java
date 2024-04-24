@@ -20,11 +20,12 @@ public class Menu {
             switch (menuNumber) {
                 case 1:
                     System.out.println("You selected Menu 1");
-                    // TODO: 회원가입 구현
+                    User user = new User();
+                    user.register();
                     break;
                 case 2:
                     System.out.println("You selected Menu 2");
-                    // TODO: 사용자 로그인 구현
+
                     break;
                 case 3:
                     System.out.println("You selected Menu 3");
