@@ -17,14 +17,14 @@ public class User {
     //0000 ~ 2359
     ArrayList<User> users = new ArrayList<User>();
     static String admin_id = "admin";
-
     final String filename = "src/KuLibrary1/UserInfo.csv";
 
-    public User(String userId, String userPassword, String userName, String userPhoneNum) {
+    public User(String userId, String userPassword, String userName, String userPhoneNum, int usingSeatNum) {
         this.userId = userId;
         this.userPassword = userPassword;
         this.userName = userName;
         this.userPhoneNum = userPhoneNum;
+        this.usingSeatNum = usingSeatNum;
     }
 
     public String getUserId() {
@@ -88,6 +88,19 @@ public class User {
     }
 
     //csv = read.(askjdla.csv)  tiemSum=csv[4];
+
+
+    public User() {
+        fromCsv();
+    }
+
+    public User(String date) {
+        fromCsv();
+        for (int i = 0; i < users.size(); i++) {
+            int nowDate = Integer.parseInt(date);
+        }
+        toCsv();
+    }
 
     public User register() {        //회원가입
         String name, id, PhoneNum, Password;
@@ -213,7 +226,7 @@ public class User {
             sc.nextLine();
             return null;
         }
-        User newuser = new User(name, PhoneNum, id, Password);
+        User newuser = new User(name, PhoneNum, id, Password, usingSeatNum);
         System.out.println("회원가입에 성공하였습니다.\n");
         users.add(newuser);
         toCsv();
@@ -240,7 +253,7 @@ public class User {
         return true;
     }
 
-    public boolean user_Login() { //main으로 돌아가야되면 true, 사용자 로그인 메뉴면 false return
+    public boolean user_Login() { //메뉴 들어가면 true, 로그인 취소면 false return
         Scanner sc = new Scanner(System.in);
         String uid;
         String upwd;
@@ -264,10 +277,39 @@ public class User {
                         System.out.println("로그인 성공!");
                         System.out.println("아무 키를 누르면 예약 메뉴로 돌아갑니다.");
                         sc.nextLine();
-                        Seat r = new seat(u);
-                        r.reservation_Menu(); //seat menu
+                        Seat seat = new Seat(u);
+                        seat.reservation_Menu(); //seat menu
                         return true;
                     }
+            }
+            System.out.println("아이디 또는 비밀번호가 일치하지 않습니다."); //로그인 실패!
+        }
+    }
+
+    public boolean admin_Login() { //메뉴 들어가면 true, 로그인 취소면 false return
+        Scanner sc = new Scanner(System.in);
+        String uid;
+        String upwd;
+        System.out.println("사용자 로그인 메뉴로 돌아가려면 'q'를 누르세요.\n");
+        while (true) {
+            System.out.print("아이디 : ");
+            uid = sc.nextLine();
+            uid = uid.trim();
+            if (uid.equals("q")) {
+                return false;
+            }
+            System.out.print("비밀번호 : ");
+            upwd = sc.nextLine();
+            upwd = upwd.trim();
+            if (upwd.equals("q")) {
+                return false;
+            }
+            if (uid.equals("admin")) {
+                if (upwd.equals("1234")) {
+                    Seat seat = new Seat();
+                    seat.admin_Menu();
+                    return true;
+                }
             }
             System.out.println("아이디 또는 비밀번호가 일치하지 않습니다."); //로그인 실패!
         }
