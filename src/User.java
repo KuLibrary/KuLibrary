@@ -276,7 +276,7 @@ public class User {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
             for (User u : users) {
-                writer.write(u.getUserName() + "," + u.getUserPhoneNum() + "," + u.getUserId() + "," + u.getUserPassword() + "\n");
+                writer.write(u.getUserId() + "," + u.getUserPassword() + "," + u.getUserName() + "," + u.getUserPhoneNum() + "," + u.getUsingSeatNum() + "\n");
             }
             writer.close();
         } catch (IOException e) {
@@ -296,10 +296,7 @@ public class User {
                     break;
                 }
                 String[] array = line.split(",");
-                User user = new User(array[0], array[1], array[2], array[3]);
-                if (!array[2].equals("X")) {
-                    users.add(user);
-                }
+                User user = new User(array[0], array[1], array[2], array[3],Integer.parseInt((array[4])));
             }
             fileReader.close();
         } catch (FileNotFoundException e) {
