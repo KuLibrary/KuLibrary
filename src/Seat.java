@@ -7,11 +7,10 @@ import java.time.LocalTime;
 import java.util.*;
 
 public class Seat {
+    final int SEAT_CAPACITY =100;
     int seatNum; //좌석 번호
     Boolean using = true; // 해당 좌석을 사용중인지 여번
-
     LocalTime StartTime;
-
     LocalTime EndTime;
 
     public Seat(int seatNum, Boolean using, LocalTime StartTime, LocalTime EndTime) {
@@ -55,6 +54,8 @@ public class Seat {
         return using ? true : false;
     }
 
+    ArrayList<Seat> seats = new ArrayList<Seat>(); //좌석정보만 담겨있는 리스트
+    ArrayList<Seat> userseats = new ArrayList<Seat>(); //
     static String filename = "src/KuLibrary1/seatData.csv";
 
 
@@ -98,8 +99,6 @@ public class Seat {
         int personNum;
         Scanner sc = new Scanner(System.in);
         printSeat();
-        Seat seat = new Seat();
-
         while (true) {
             System.out.println("사용하고자하는 좌석을 입력해주세요. q 입력 시 예약 메뉴로 돌아갑니다.");
             System.out.print(">> ");
@@ -113,18 +112,30 @@ public class Seat {
                 continue;
             }
             seatNum = Integer.parseInt(input);
-            if (seatNum <= 0 || seatNum > seat.size()) {
+            if (seatNum <= 0 || seatNum >= SEAT_CAPACITY) {
                 System.out.println("해당 좌석은 존재하지 않습니다.");
                 continue;
             }
-            for (int i = 0; i < seat.size(); i++) {
-                if (seatNum == getSeatNum().using()) {
-                    //사용 좌석 사용 여부 확인
+            for (int i = 0; i < SEAT_CAPACITY; i++) {
+                if (seatNum == seats.get(i).getSeatNum()) {
+                    if(seats.get(i).getUsing()) {
+                        System.out.println("해당 좌석은 이미 사용중입니다");
+                        System.out.println("다른 좌석을 입력해주세요");
+                        break;
+                        //1차 기획서랑 다르게 메인화면으로 안가고 다시입력받을수있도록함
+                    }
+                    else{
+                        System.out.println("좌석 예약에 성공했습니다.");
+                        int seatNum, Boolean using, LocalTime StartTime, LocalTime EndTime
+                        Seat seat = new Seat();
+                        break;
+                    }
                 }
             }
-            break;
         }
+        seats.add(newuser);
         toCsv();
+        toCsv(seats);
     }
 
     public void check_Seat() {
@@ -214,4 +225,6 @@ public class Seat {
             }
         }
     }
+
+
 }
