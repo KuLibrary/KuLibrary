@@ -163,6 +163,9 @@ public class Seat {
             System.out.println("좌석 번호: "+user.getUsingSeatNum());
             System.out.println("좌석 이용 시작 시간: "+user.getStartTime());
             System.out.println("좌석 이용 종료 시간: "+user.getEndTime());
+            System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
+            sc.nextLine();
+            return;
 
         }
     }
