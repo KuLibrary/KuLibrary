@@ -126,6 +126,7 @@ public class Seat {
                     }
                     else{
                         System.out.println("좌석 예약에 성공했습니다.");
+                        Seat seat = new Seat(seatNum,true,);
                         int seatNum, Boolean using, LocalTime StartTime, LocalTime EndTime
                         Seat seat = new Seat();
                         break;
