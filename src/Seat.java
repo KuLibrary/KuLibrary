@@ -13,6 +13,7 @@ public class Seat {
     LocalTime StartTime;
     LocalTime EndTime;
 
+    List<Seat> seatList = new ArrayList<>();
     public Seat(int seatNum, Boolean using, LocalTime StartTime, LocalTime EndTime) {
         this.seatNum = seatNum;
         this.using = using;
@@ -97,6 +98,9 @@ public class Seat {
         String choose;
         int myroomNum = 0;
         int personNum;
+        int selectSeatNum;
+        LocalTime StartTime, EndTime;
+
         Scanner sc = new Scanner(System.in);
         printSeat();
         while (true) {
@@ -107,11 +111,11 @@ public class Seat {
                 System.out.println();
                 return;
             }
-            if (!input.matches("\\d+")) {
+            else if (!input.matches("\\d+")) {
                 System.out.println("숫자만 입력해주세요.");
                 continue;
             }
-            seatNum = Integer.parseInt(input);
+            selectSeatNum = Integer.parseInt(input);
             if (seatNum <= 0 || seatNum >= SEAT_CAPACITY) {
                 System.out.println("해당 좌석은 존재하지 않습니다.");
                 continue;
@@ -126,17 +130,16 @@ public class Seat {
                     }
                     else{
                         System.out.println("좌석 예약에 성공했습니다.");
-                        Seat seat = new Seat(seatNum,true,);
-                        int seatNum, Boolean using, LocalTime StartTime, LocalTime EndTime
-                        Seat seat = new Seat();
+                        seatList.add(new Seat(selectSeatNum,true,getStartTime(),getEndTime()));
+
+
+                        toCsv(seats);
                         break;
                     }
                 }
             }
         }
-        seats.add(newuser);
-        toCsv();
-        toCsv(seats);
+
     }
 
     public void check_Seat() {
