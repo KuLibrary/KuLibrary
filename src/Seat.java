@@ -7,17 +7,17 @@ import java.time.LocalTime;
 import java.util.*;
 
 public class Seat {
+    final int SEAT_CAPACITY =100;
     int seatNum; //좌석 번호
-    Boolean using = true; // 해당 좌석을 사용중인지 여번
-
+    Boolean using = true; // 해당 좌석을 사용중인지 여부
     LocalTime StartTime;
-
     LocalTime EndTime;
+
 
     public Seat(int seatNum, Boolean using, LocalTime StartTime, LocalTime EndTime) {
         this.seatNum = seatNum;
         this.using = using;
-        this.StartTime = getStartTime();
+        this.StartTime =  StartTime;
         this.EndTime = getEndTime();
     }
 
@@ -42,19 +42,25 @@ public class Seat {
         this.using = using;
     }
 
+    //시작시간 초기파일에서 받을때 00:00
     public LocalTime getStartTime() {
         return StartTime;
     }
 
-    public LocalTime getEndTime() { //StartTime + 5시간으로 설정할 수 있도록
-        LocalTime now = LocalTime.now();
-        return now.plusHours(5);
+    //시작시간 초기파일에서 받을때 00:00
+    public LocalTime getEndTime() {
+        //시작시간 00:00이면, 종료시간도 00:00으로 초기화
+        if(getStartTime().equals(LocalTime.MIDNIGHT))
+            return LocalTime.MIDNIGHT;
+        //아니면(좌석 배정확정되었다면) 시작시간에 5시간 추가
+        return getStartTime().plusHours(5);
     }
 
     public boolean displayStatus(){
         return using ? true : false;
     }
 
+    ArrayList<Seat> seats = new ArrayList<Seat>(); //좌석정보만 담겨있는 리스트
     static String filename = "src/KuLibrary1/seatData.csv";
 
 
@@ -93,14 +99,11 @@ public class Seat {
 
 
     public void apply_Reservation() {
-        String choose;
-        int myroomNum = 0;
-        int personNum;
-        Scanner sc = new Scanner(System.in);
-        printSeat();
-        Seat seat = new Seat();
+        int selectSeatNum;
 
+        Scanner sc = new Scanner(System.in);
         while (true) {
+            printSeat();
             System.out.println("사용하고자하는 좌석을 입력해주세요. q 입력 시 예약 메뉴로 돌아갑니다.");
             System.out.print(">> ");
             String input = sc.nextLine().trim();
@@ -108,48 +111,72 @@ public class Seat {
                 System.out.println();
                 return;
             }
-            if (!input.matches("\\d+")) {
+            else if (!input.matches("\\d+")) {
                 System.out.println("숫자만 입력해주세요.");
                 continue;
             }
-            seatNum = Integer.parseInt(input);
-            if (seatNum <= 0 || seatNum > seat.size()) {
+            selectSeatNum = Integer.parseInt(input);
+            if (selectSeatNum <= 0 || selectSeatNum>= SEAT_CAPACITY) {
                 System.out.println("해당 좌석은 존재하지 않습니다.");
                 continue;
             }
-            for (int i = 0; i < seat.size(); i++) {
-                if (seatNum == getSeatNum().using()) {
-                    //사용 좌석 사용 여부 확인
+            for (int i = 0; i < SEAT_CAPACITY; i++) {
+                if (selectSeatNum == seats.get(i).getSeatNum()) {
+                    if(seats.get(i).getUsing()) {
+                        System.out.println("해당 좌석은 이미 사용중입니다");
+                        System.out.println("다른 좌석을 입력해주세요");
+                        break;
+                        //1차 기획서랑 다르게 메인화면으로 안가고 다시입력받을수있도록함
+                    }
+                    else{
+                        System.out.println("좌석 예약에 성공했습니다.");
+                        seats.add(new Seat(selectSeatNum,true,LocalTime.now(),getEndTime())); //좌석정보 업데이트
+                        user.setUsingSeatNum(selectSeatNum); //유저정보 업데이트
+                        user.setTimeSum(user.getTimeSum());
+                        user.setStartTime(user.getStartTime());
+                        user.setEndTime(user.getEndTime());
+                        toCsv(seats);
+                        user.toCsv();
+                        System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
+                        sc.nextLine();
+                        return;
+                    }
                 }
             }
-            break;
+
         }
-        toCsv();
+
     }
 
     public void check_Seat() {
-        boolean reserve = false;
-        while (true) {
-            ArrayList<Seat> tmprooms = new ArrayList<>();
-            System.out.println("---------------");
-            System.out.println("좌석 내역 출력");
-            //사용하고 있는 좌석 번호와 시작 시간, 종료 시간 출력. 사용 안하고 있다면 사용 중인 정보가 없습니다. 출력.
+        Scanner sc = new Scanner(System.in);
+        if(user.getUsingSeatNum()==0)
+        {
+            System.out.println(user.getUserName()+"님, 사용중인 좌석이 없습니다");
+            System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
+            sc.nextLine();
+            return;
+        }
+        else{
+            System.out.println(user.getUserName()+"님의 현재 사용중인 좌석 정보");
+            System.out.println("------------------");
+            System.out.println("좌석 번호: "+user.getUsingSeatNum());
+            System.out.println("좌석 이용 시작 시간: "+user.getStartTime());
+            System.out.println("좌석 이용 종료 시간: "+user.getEndTime());
 
         }
     }
 
 
     public void printSeat(){ //동희가 적은 부분
-        ArrayList<Seat> seats=new ArrayList<>();
+        ArrayList<Seat> seatlist=new ArrayList<>();
         System.out.println("잔여 좌석입니다.");
-        Iterator<Seat> iterator=seats.iterator();
+        Iterator<Seat> iterator=seatlist.iterator();
         if(iterator.hasNext()){
             Seat seat=iterator.next();
-            if(seat.isReserved());
-            System.out.print(seat.getSeatNumber()+" ");
+            if(!(seat.getUsing()));
+            System.out.print(seat.getSeatNum()+" ");
         }
-
-        return;
     }
 
     public static void toCsv(List<Seat> seats) {
@@ -201,7 +228,7 @@ public class Seat {
                 String choice = sc.nextLine().trim();
                 switch (choice) {
                     case "1":
-                        printSeat();;
+                        printSeat();
                         break;
                     case "2":
                         System.out.println("메뉴로 돌아갑니다.");
@@ -214,4 +241,6 @@ public class Seat {
             }
         }
     }
+
+
 }

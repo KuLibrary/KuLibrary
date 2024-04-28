@@ -1,6 +1,7 @@
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -12,8 +13,8 @@ public class User {
 
     private int usingSeatNum=0; // 이용중인 좌석 (사용중이 아니라면 0)
     private int timeSum=0; // 누적 이용 시간부
-    private String startTime=""; // 사용 시작 시간
-    private String endTime=""; // 사용 종료 예정 시간
+    private LocalTime startTime; // 사용 시작 시간
+    private LocalTime endTime; // 사용 종료 예정 시간
     //0000 ~ 2359
     ArrayList<User> users = new ArrayList<User>();
     static String admin_id = "admin";
@@ -49,15 +50,13 @@ public class User {
         return timeSum;
     }
 
-    public String getStartTime() {
+    public LocalTime getStartTime() {
         return startTime;
     }
 
-    public String getEndTime() {
+    public LocalTime getEndTime() {
         return endTime;
     }
-
-
 
     public void setUserPassword(String userPassword) {
         this.userPassword = userPassword;
@@ -76,15 +75,15 @@ public class User {
     }
 
     public void setTimeSum(int timeSum) {
-        this.timeSum = timeSum;
+        this.timeSum =timeSum+5;
     }
 
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public void setEndTime(String endTime) {
+    public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
     }
 
     //csv = read.(askjdla.csv)  tiemSum=csv[4];
