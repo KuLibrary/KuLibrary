@@ -18,7 +18,7 @@ public class User {
     //0000 ~ 2359
     ArrayList<User> users = new ArrayList<User>();
     static String admin_id = "admin";
-    final String filename = "src/KuLibrary1/UserInfo.csv";
+    final String filename = "src/userData.csv";
 
     public User(String userId, String userPassword, String userName, String userPhoneNum, int usingSeatNum) {
         this.userId = userId;
@@ -225,7 +225,8 @@ public class User {
             sc.nextLine();
             return null;
         }
-        User newuser = new User(name, PhoneNum, id, Password, usingSeatNum);
+//        User newuser = new User(name, PhoneNum, id, Password, usingSeatNum);
+        User newuser = new User(id, Password, name, PhoneNum, usingSeatNum);
         System.out.println("회원가입에 성공하였습니다.\n");
         users.add(newuser);
         toCsv();
@@ -254,6 +255,7 @@ public class User {
 
     public boolean user_Login() { //메뉴 들어가면 true, 로그인 취소면 false return
         Scanner sc = new Scanner(System.in);
+        fromCsv();
         String uid;
         String upwd;
         System.out.println("사용자 로그인 메뉴로 돌아가려면 'q'를 누르세요.\n");
@@ -280,8 +282,10 @@ public class User {
                         seat.reservation_Menu(); //seat menu
                         return true;
                     }
+                System.out.println("ID: "+u.getUserId()+"PW: "+u.getUserPassword());
             }
             System.out.println("아이디 또는 비밀번호가 일치하지 않습니다."); //로그인 실패!
+            System.out.println("사용자 로그인 메뉴로 돌아가려면 'q'를 누르세요.\n");
         }
     }
 
