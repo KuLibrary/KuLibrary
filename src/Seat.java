@@ -194,27 +194,24 @@ public class Seat {
         List<Seat> seats = fromCsv();
         System.out.println("----- 좌석의 사용여부를 출력합니다 -----");
         for (int i = 0; i < seats.size(); i++) {
-            // 좌석 번호를 출력합니다. 10개마다 줄바꿈을 합니다.
             if (i % 10 == 0 && i != 0) {
-                System.out.println(); // 번호 출력을 마친 후 줄바꿈
+                System.out.println();
             }
             Seat seat = seats.get(i);
-            // 번호가 한 자리 수일 경우 앞에 0을 붙입니다.
             String formattedSeatNum = String.format("%02d", seat.seatNum);
             System.out.print(formattedSeatNum);
-            if ((i % 10 != 9) && (i != seats.size() - 1)) System.out.print(","); // 줄의 마지막 항목 제외하고 콤마를 찍습니다.
+            if ((i % 10 != 9) && (i != seats.size() - 1)) System.out.print(",");
 
-            // 10개마다 또는 마지막 좌석에서 사용 여부를 출력합니다.
             if ((i % 10 == 9) || (i == seats.size() - 1)) {
-                System.out.println(); // 줄바꿈
-                int start = (i / 10) * 10; // 이번에 출력할 사용 여부 시작 인덱스
-                for (int j = start; j <= i; j++) { // 시작 인덱스부터 현재 인덱스까지 사용 여부 출력
+                System.out.println();
+                int start = (i / 10) * 10;
+                for (int j = start; j <= i; j++) {
                     seat = seats.get(j);
-                    String usingStatus = (seat.using ? " O" : " X"); // 공백 추가
+                    String usingStatus = (seat.using ? " O" : " X");
                     System.out.print(usingStatus);
-                    if (j < i) System.out.print(","); // 마지막 항목 제외하고 콤마를 찍습니다.
+                    if (j < i) System.out.print(",");
                 }
-                System.out.println(); // 사용 여부 출력 후 줄바꿈
+                System.out.println();
             }
         }
     }
