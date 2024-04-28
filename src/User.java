@@ -282,7 +282,6 @@ public class User {
                         seat.reservation_Menu(); //seat menu
                         return true;
                     }
-                System.out.println("ID: "+u.getUserId()+"PW: "+u.getUserPassword());
             }
             System.out.println("아이디 또는 비밀번호가 일치하지 않습니다."); //로그인 실패!
             System.out.println("사용자 로그인 메뉴로 돌아가려면 'q'를 누르세요.\n");

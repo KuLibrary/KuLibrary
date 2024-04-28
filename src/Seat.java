@@ -140,9 +140,10 @@ public class Seat {
                         System.out.println("좌석 예약에 성공했습니다.");
 
                         user.setUsingSeatNum(selectSeatNum); //유저정보 업데이트
-
                         seat.setUsing(true);
                         seat.setTime();
+                        user.setStartTime(seat.getStartTime());
+                        user.setEndTime(seat.getEndTime());
                         updateSeatInCsv(seat);
                         updateUserCsv(user);
                         System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
