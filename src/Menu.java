@@ -31,6 +31,8 @@ public class Menu {
 
     static void mainMenu(Scanner scanner, String date){
         User user = new User(date);
+        Seat seat = new Seat();
+        seat.initSeatCsv(seat.SEAT_CAPACITY);
         while(true){
             System.out.println("Konkuk library");
             System.out.println("---------------------------");
