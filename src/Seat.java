@@ -1,7 +1,4 @@
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import java.time.LocalTime;
 import java.util.*;
 
@@ -12,6 +9,7 @@ public class Seat {
     LocalTime StartTime;
     LocalTime EndTime;
 
+    CsvManager csvManager=new CsvManager();
 
     public Seat(int seatNum, Boolean using, LocalTime StartTime, LocalTime EndTime) {
         this.seatNum = seatNum;
@@ -65,14 +63,11 @@ public class Seat {
     }
 
 
-    ArrayList<Seat> seats = new ArrayList<Seat>(); //좌석정보만 담겨있는 리스트
-    static String filename = "src/seatData.csv";
-
 
     public void reservation_Menu() {
         Scanner sc = new Scanner(System.in);
 
-        fromCsv();
+        csvManager.readSeatCsv();
         while (true) {
             System.out.println("<예약 메뉴>");
             System.out.println("---------------");
@@ -110,7 +105,7 @@ public class Seat {
 
     public void apply_Reservation() {
         int selectSeatNum;
-        List<Seat> seats = fromCsv();
+        List<Seat> seats = csvManager.readSeatCsv();
         printSeat();
         Scanner sc = new Scanner(System.in);
         while (true) {
@@ -144,8 +139,8 @@ public class Seat {
                         seat.setTime();
                         user.setStartTime(seat.getStartTime());
                         user.setEndTime(seat.getEndTime());
-                        updateSeatInCsv(seat);
-                        updateUserCsv(user);
+                        csvManager.updateSeatInCsv(seat);
+                        csvManager.updateUserCsv(user);
                         System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
                         sc.nextLine();
                         return;
@@ -160,39 +155,11 @@ public class Seat {
     }
 
 
-    public void updateSeatInCsv(Seat seat) {
-        Path path = Paths.get(filename);
-        List<String> lines = new ArrayList<>();
-        try {
-            lines = Files.readAllLines(path);
-            for (int i = 0; i < lines.size(); i++) {
-                String[] data = lines.get(i).split(",");
-                int currentSeatNum = Integer.parseInt(data[0]);
-                if (currentSeatNum == seat.seatNum) {
-                    String usingStatus = seat.using ? "1" : "0";
-                    String updatedLine = seat.seatNum + "," + usingStatus + "," + seat.StartTime.toString() + "," + seat.getEndTime().toString();
-                    lines.set(i, updatedLine);
-                    break;
-                }
-            }
-            try (BufferedWriter bw = Files.newBufferedWriter(path)) {
-                for (String line : lines) {
-                    bw.write(line);
-                    bw.newLine();
-                }
-            } catch (IOException e) {
-                System.out.println("파일을 쓰는 중 오류가 발생했습니다.");
-            }
-        } catch (IOException e) {
-            System.out.println("파일을 읽는 중 오류가 발생했습니다.");
-        }
-    }
-
 
 
 
     public void printSeat() {
-        List<Seat> seats = fromCsv();
+        List<Seat> seats = csvManager.readSeatCsv();
         System.out.println("----- 좌석의 사용여부를 출력합니다 -----");
         for (int i = 0; i < seats.size(); i++) {
             if (i % 10 == 0 && i != 0) {
@@ -222,33 +189,15 @@ public class Seat {
 
 
 
-    public static List<Seat> fromCsv() {
-        List<Seat> seats = new ArrayList<>();
-        Path path = Paths.get(filename);
-        try (BufferedReader br = Files.newBufferedReader(path)) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
-                int seatNum = Integer.parseInt(data[0]);
-                boolean using = data[1].equals("1");
-                LocalTime startTime = LocalTime.parse(data[2]);
-                LocalTime endTime = LocalTime.parse(data[3]);
-                seats.add(new Seat(seatNum, using, startTime, endTime));
-            }
-        } catch (IOException e) {
-            System.out.println("파일을 읽는 중 오류가 발생했습니다.");
-        }
-        return seats;
-    }
+
 
     public void check_Seat() {
-        fromCsv();
+        csvManager.readSeatCsv();
         Scanner sc = new Scanner(System.in);
         if (user.getUsingSeatNum() == 0) {
             System.out.println(user.getUserName() + "님, 사용중인 좌석이 없습니다");
             System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
             sc.nextLine();
-            return;
         } else {
             System.out.println(user.getUserName() + "님의 현재 사용중인 좌석 정보");
             System.out.println("------------------");
@@ -260,23 +209,11 @@ public class Seat {
     }
 
 
-    public static void toCsv(List<Seat> seats) {
-        Path path = Paths.get(filename);
-        try (BufferedWriter bw = Files.newBufferedWriter(path)) {
-            for (Seat seat : seats) {
-                String line = seat.seatNum + "," + seat.using + "," + seat.StartTime + "," + seat.EndTime;
-                bw.write(line);
-                bw.newLine();
-            }
-        } catch (IOException e) {
-            System.out.println("파일을 쓰는 중 오류가 발생했습니다.");
-        }
-    }
+
 
     public void admin_Menu() {
 
         Scanner sc = new Scanner(System.in);
-        List<Seat> seats = fromCsv();
         while (true) {
             System.out.println("<어드민 메뉴>");
             System.out.println("---------------");
@@ -303,45 +240,8 @@ public class Seat {
         }
     }
 
-    public void initSeatCsv(int SEAT_CAPACITY) {
-        Path path = Paths.get(filename);
-        try (BufferedWriter bw = Files.newBufferedWriter(path)) {
-            for (int i = 0; i < SEAT_CAPACITY; i++) {
-                String line = i + 1 + ",0,00:00,00:00";
-                bw.write(line);
-                bw.newLine();
-            }
-        } catch (IOException e) {
-            System.out.println("파일을 쓰는 중 오류가 발생했습니다.");
-        }
-    }
 
-    public void updateUserCsv(User user) {
-        Path path = Paths.get("src/userData.csv");
-        List<String> lines = new ArrayList<>();
-        try {
-            lines = Files.readAllLines(path);
-            for (int i = 0; i < lines.size(); i++) {
-                String[] data = lines.get(i).split(",");
-                String phoneNumber = data[3]; // Assuming phone number is stored at index 3
-                if (phoneNumber.equals(user.getUserPhoneNum())) {
-                    // Update the user's information
-                    lines.set(i, user.getUserId() + "," + user.getUserPassword() + "," + user.getUserName() + "," + user.getUserPhoneNum() + "," + user.getUsingSeatNum());
-                    break;
-                }
-            }
-            // Write the updated lines back to the CSV file
-            try (BufferedWriter bw = Files.newBufferedWriter(path)) {
-                for (String line : lines) {
-                    bw.write(line);
-                    bw.newLine();
-                }
-            } catch (IOException e) {
-                System.out.println("Error writing to the file.");
-            }
-        } catch (IOException e) {
-            System.out.println("Error reading the file.");
-        }
-    }
+
+
 
 }

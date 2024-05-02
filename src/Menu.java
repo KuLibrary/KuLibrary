@@ -1,6 +1,4 @@
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+
 import java.util.Scanner;
 
 public class Menu {
@@ -27,7 +25,8 @@ public class Menu {
     static void mainMenu(Scanner scanner, String date) {
         User user = new User(date);
         Seat seat = new Seat();
-        seat.initSeatCsv(seat.SEAT_CAPACITY);
+        CsvManager csvManager=new CsvManager();
+        csvManager.initSeatCsv(seat.SEAT_CAPACITY);
         while (true) {
             System.out.println("Konkuk library");
             System.out.println("---------------------------");

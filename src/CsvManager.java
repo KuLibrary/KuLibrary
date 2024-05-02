@@ -1,12 +1,22 @@
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
+
+import static java.nio.file.Files.newBufferedReader;
 
 public class CsvManager {
-    public void writeCsv(String filename , ArrayList<User> users) {
+
+    final String userCsvFileName = "src/userData.csv";
+    final String seatCsvFileName = "src/seatData.csv";
+
+
+    public void writeUserCsv( ArrayList<User> users) {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(userCsvFileName));
             for (User u : users) {
                 writer.write(u.getUserId() + "," + u.getUserPassword() + "," + u.getUserName() + "," + u.getUserPhoneNum() + "," + u.getUsingSeatNum() + "\n");
             }
@@ -16,12 +26,12 @@ public class CsvManager {
         }
     }
 
-    public void readCsv(String filename) {
+    public void readUserCsv() {
         BufferedReader br;
 
-        try (FileReader fileReader = new FileReader(filename)) {
-            br = Files.newBufferedReader(Paths.get(filename));
-            String line = "";
+        try (FileReader fileReader = new FileReader(userCsvFileName)) {
+            br = newBufferedReader(Paths.get(userCsvFileName));
+            String line;
 
             while ((line = br.readLine()) != null) {
                 if (line.isEmpty()) {
@@ -30,7 +40,6 @@ public class CsvManager {
                 String[] array = line.split(",");
                 User user = new User(array[0], array[1], array[2], array[3],Integer.parseInt((array[4])));
             }
-            fileReader.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             System.out.println("회원 정보 파일이 없습니다.\n프로그램을 종료합니다.");
@@ -39,6 +48,93 @@ public class CsvManager {
             e.printStackTrace();
             System.out.println("회원 정보 파일이 없습니다.\n프로그램을 종료합니다.");
             System.exit(0);
+        }
+    }
+
+    public List<Seat> readSeatCsv() {
+        List<Seat> seats = new ArrayList<>();
+        Path path = Paths.get(seatCsvFileName);
+        try (BufferedReader br = newBufferedReader(path)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                int seatNum = Integer.parseInt(data[0]);
+                boolean using = data[1].equals("1");
+                LocalTime startTime = LocalTime.parse(data[2]);
+                LocalTime endTime = LocalTime.parse(data[3]);
+                seats.add(new Seat(seatNum, using, startTime, endTime));
+            }
+        } catch (IOException e) {
+            System.out.println("파일을 읽는 중 오류가 발생했습니다.");
+        }
+        return seats;
+    }
+
+    public void updateUserCsv(User user) {
+        Path path = Paths.get(seatCsvFileName);
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(path);
+            for (int i = 0; i < lines.size(); i++) {
+                String[] data = lines.get(i).split(",");
+                String phoneNumber = data[3];
+                if (phoneNumber.equals(user.getUserPhoneNum())) {
+                    lines.set(i, user.getUserId() + "," + user.getUserPassword() + "," + user.getUserName() + "," + user.getUserPhoneNum() + "," + user.getUsingSeatNum());
+                    break;
+                }
+            }
+            try (BufferedWriter bw = Files.newBufferedWriter(path)) {
+                for (String line : lines) {
+                    bw.write(line);
+                    bw.newLine();
+                }
+            } catch (IOException e) {
+                System.out.println("파일을 쓰는 중 오류가 발생했습니.");
+            }
+        } catch (IOException e) {
+            System.out.println("파일을 읽는 중 오류가 발생했습니.");
+        }
+    }
+
+    public void updateSeatInCsv(Seat seat) {
+        Path path = Paths.get(seatCsvFileName);
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(path);
+            for (int i = 0; i < lines.size(); i++) {
+                String[] data = lines.get(i).split(",");
+                int currentSeatNum = Integer.parseInt(data[0]);
+                if (currentSeatNum == seat.seatNum) {
+                    String usingStatus = seat.using ? "1" : "0";
+                    String updatedLine = seat.seatNum + "," + usingStatus + "," + seat.StartTime.toString() + "," + seat.getEndTime().toString();
+                    lines.set(i, updatedLine);
+                    break;
+                }
+            }
+            try (BufferedWriter bw = Files.newBufferedWriter(path)) {
+                for (String line : lines) {
+                    bw.write(line);
+                    bw.newLine();
+                }
+            } catch (IOException e) {
+                System.out.println("파일을 쓰는 중 오류가 발생했습니다.");
+            }
+        } catch (IOException e) {
+            System.out.println("파일을 읽는 중 오류가 발생했습니다.");
+        }
+    }
+
+
+    public void initSeatCsv(int SEAT_CAPACITY) {
+        Path path = Paths.get(seatCsvFileName);
+        try (BufferedWriter bw = Files.newBufferedWriter(path)) {
+            for (int i = 0; i < SEAT_CAPACITY; i++) {
+                String line = i + 1 + ",0,00:00,00:00";
+                bw.write(line);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("파일을 쓰는 중 오류가 발생했습니다.");
         }
     }
 }
