@@ -43,6 +43,14 @@ public class Seat {
         this.using = using;
     }
 
+
+    public void resetTime() {
+        this.StartTime = "000000000000";
+        this.EndTime = "000000000000";
+    }
+
+
+
     public void setTime(String time) {
         // Define the input and output format
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
@@ -116,7 +124,7 @@ public class Seat {
                         check_Seat();
                         break;
                     case "3":
-                        out_Seat();
+                        out_Seat(time);
                         break;
                     case "4":
                         extension_Seat(time);
@@ -227,22 +235,33 @@ public class Seat {
         }
     }
 
-    public void out_Seat() {
-
+    public void out_Seat(String time) {
+        List<Seat> seats = csvManager.readSeatCsv();
         csvManager.readSeatCsv();
         Scanner sc = new Scanner(System.in);
         if (user.getUsingSeatNum() == 0) {
             System.out.println(user.getUserName() + "님, 사용중인 좌석이 없습니다");
-            System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
-            sc.nextLine();
-        } else {
-            System.out.println(user.getUserName() + "님의 현재 사용중인 좌석 정보");
-            System.out.println("------------------");
-            System.out.println("좌석 번호: " + user.getUsingSeatNum());
-            System.out.println("좌석 이용 시작 시간: " + RegexManager.formatDateTime(user.getStartTime()));
-            System.out.println("좌석 이용 종료 시간: " + RegexManager.formatDateTime(user.getEndTime()));
 
+
+        } else {
+            for (Seat seat : seats) {
+                if (user.getUsingSeatNum() == seat.getSeatNum()) {
+
+                    user.setUsingSeatNum(0); //유저정보 업데이트
+                    seat.setUsing(false);
+                    seat.resetTime();
+                    user.setStartTime(seat.getStartTime());
+                    user.setEndTime(seat.getEndTime());
+                    csvManager.updateSeatInCsv(seat);
+                    csvManager.updateUserCsv(user);
+
+                    System.out.println("좌석 퇴실에 성공했습니다.");
+                    return;
+                }
+            }
         }
+        System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
+        sc.nextLine();
     }
 
     public void extension_Seat(String time) {
