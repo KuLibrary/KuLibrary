@@ -11,6 +11,8 @@ public class User {
     private int timeSum=0; // 누적 이용 시간부
     private String startTime; // 사용 시작 시간
     private String endTime; // 사용 종료 예정 시간
+
+    //Seat userseat = new Seat();
     //0000 ~ 2359
     ArrayList<User> users = new ArrayList<>();
     static String admin_id = "admin";
@@ -88,9 +90,9 @@ public class User {
     }
 
     public User(String time) {
-        csvManager.readUserCsv();
+        users = csvManager.readUserCsv();
         for (int i = 0; i < users.size(); i++) {
-            int nowDate = Integer.parseInt(time);
+
         }
         csvManager.writeUserCsv(users);
     }
@@ -302,8 +304,8 @@ public class User {
             }
             if (uid.equals("admin")) {
                 if (upwd.equals("1234")) {
-                    Seat seat = new Seat();
-                    seat.admin_Menu();
+                    Seat seat = new Seat(users);
+                    seat.admin_Menu(time);
                     return;
                 }
             }

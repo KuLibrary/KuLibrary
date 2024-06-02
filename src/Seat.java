@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class Seat {
-    final int SEAT_CAPACITY = 100;
+    int SEAT_CAPACITY = 30;
     int seatNum; //좌석 번호
     Boolean using = true; // 해당 좌석을 사용중인지 여부
     String StartTime;
@@ -22,11 +22,13 @@ public class Seat {
     }
 
     User user = new User();
-
+    ArrayList<User> users = new ArrayList<>(); //유저 리스트
     public Seat(User user) {
         this.user = user;
     }
-
+    public Seat(ArrayList<User> users) {
+        this.users = users;
+    }
     public Seat() {
     }
 
@@ -167,10 +169,8 @@ public class Seat {
                         System.out.println("해당 좌석은 이미 사용중입니다");
                         System.out.println("다른 좌석을 입력해주세요");
                         break;
-                        //1차 기획서랑 다르게 메인화면으로 안가고 다시입력받을수있도록함
                     } else {
                         System.out.println("좌석 예약에 성공했습니다.");
-
                         user.setUsingSeatNum(selectSeatNum); //유저정보 업데이트
                         seat.setUsing(true);
                         seat.setTime(time);
@@ -220,8 +220,7 @@ public class Seat {
             }
         }
     }
-
-    public void seatout() {
+    public void admin_out_Seat(String time) {
         int selectSeatNum;
         List<Seat> seats = csvManager.readSeatCsv();
         Scanner sc = new Scanner(System.in);
@@ -243,29 +242,25 @@ public class Seat {
             for (Seat seat : seats) {
                 if (selectSeatNum == seat.getSeatNum()) {
                     if (seat.getUsing()) {
-
-                        seat.setUsing(false);
-                        System.out.println("해당 좌석은 이미 사용중입니다");
-                        System.out.println("다른 좌석을 입력해주세요");
-                        break;
-                        //1차 기획서랑 다르게 메인화면으로 안가고 다시입력받을수있도록함
+                        for (User user : users) {
+                            if(user.getUsingSeatNum()==seat.getSeatNum()) {
+                                user.setUsingSeatNum(0); //유저정보 업데이트
+                                seat.setUsing(false);
+                                seat.resetTime();
+                                user.setStartTime(seat.getStartTime());
+                                user.setEndTime(seat.getEndTime());
+                                csvManager.updateSeatInCsv(seat);
+                                csvManager.updateUserCsv(user);
+                                System.out.println("좌석 퇴실에 성공했습니다.");
+                                return;
+                            }
+                        }
                     } else {
-                        System.out.println("좌석 예약에 성공했습니다.");
-
-                        user.setUsingSeatNum(selectSeatNum); //유저정보 업데이트
-                        seat.setUsing(true);
-                        seat.setTime();
-                        user.setStartTime(seat.getStartTime());
-                        user.setEndTime(seat.getEndTime());
-                        csvManager.updateSeatInCsv(seat);
-                        csvManager.updateUserCsv(user);
-                        System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
-                        sc.nextLine();
-                        return;
+                        System.out.println("해당 좌석은 사용중이지 않습니다.");
+                        break;
                     }
                 }
             }
-
             System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
             sc.nextLine();
             return;
@@ -274,8 +269,50 @@ public class Seat {
 
     }
 
-    public void seatsetting() {
-
+    public void seat_setting() {
+        int selectnum;
+        //int currentseatnum=0; //현재 사용하고 있는 좌석수
+        int maxseatnum =0; //사용자가 앉아있는 좌석수중에 제일 큰 값
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            System.out.println("조정하고자 하는 최대 좌석 수를 입력해주세요(30이하). q 입력 시 예약 메뉴로 돌아갑니다.");
+            System.out.print(">> ");
+            String input = sc.nextLine().trim();
+            if (input.equals("q")) {
+                System.out.println();
+                return;
+            } else if (!input.matches("\\d+")) {
+                System.out.println("숫자만 입력해주세요.");
+                continue;
+            }
+            selectnum = Integer.parseInt(input);
+            if (selectnum > 30) {
+                System.out.println("최대 좌석수는 30입니다.");
+            }
+            for (User user : users) {
+                if(user.getUsingSeatNum()!=0) {
+                    //currentseatnum++;
+                    if(maxseatnum<user.getUsingSeatNum())
+                        maxseatnum=user.getUsingSeatNum();
+                }
+            }
+            if(selectnum<maxseatnum){
+                System.out.println("조정하려는 최대 좌석 수보다 더 높은 좌석번호를 사용자가 사용중입니다.");
+                System.out.println(maxseatnum+" 보다 더 큰 수를 입력해주세요");}
+            else{
+                if(selectnum > SEAT_CAPACITY) //27 ->> 29 좌석 늘릴경우 좌석 더 그리기
+                    csvManager.expandSeatCapacity(SEAT_CAPACITY,selectnum);
+                else if(selectnum < SEAT_CAPACITY) // 29-> 27 좌석 줄일경우 줄인만큼 치우기
+                    csvManager.reduceSeatCapacity(selectnum);
+                SEAT_CAPACITY=selectnum;
+                System.out.println("최대 좌석 수를 조정하였습니다.");
+                System.out.println("현재 최대 좌석수는 "+SEAT_CAPACITY+" 입니다.");
+                return;
+            }
+            System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
+            sc.nextLine();
+            return;
+        }
     }
 
 
@@ -285,6 +322,7 @@ public class Seat {
 
     public void check_Seat() {
         csvManager.readSeatCsv();
+        List<Seat> seats = csvManager.readSeatCsv();
         Scanner sc = new Scanner(System.in);
         if (user.getUsingSeatNum() == 0) {
             System.out.println(user.getUserName() + "님, 사용중인 좌석이 없습니다");
@@ -294,8 +332,13 @@ public class Seat {
             System.out.println(user.getUserName() + "님의 현재 사용중인 좌석 정보");
             System.out.println("------------------");
             System.out.println("좌석 번호: " + user.getUsingSeatNum());
-            System.out.println("좌석 이용 시작 시간: " + RegexManager.formatDateTime(user.getStartTime()));
-            System.out.println("좌석 이용 종료 시간: " + RegexManager.formatDateTime(user.getEndTime()));
+            for (Seat seat : seats) {
+                if (user.getUsingSeatNum() == seat.getSeatNum()) {
+                    System.out.println("좌석 이용 시작 시간: " + RegexManager.formatDateTime(seat.getStartTime()));
+                    System.out.println("좌석 이용 종료 시간: " + RegexManager.formatDateTime(seat.getEndTime()));
+                    break;
+                }
+            }
         }
     }
 
@@ -335,7 +378,6 @@ public class Seat {
         }else {
             List<Seat> seats = csvManager.readSeatCsv();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-
             LocalDateTime endTime = LocalDateTime.parse(user.getEndTime(), formatter);
             LocalDateTime requestTime = LocalDateTime.parse(time, formatter);
 
@@ -365,7 +407,7 @@ public class Seat {
     }
 
 
-    public void admin_Menu() {
+    public void admin_Menu(String time) {
 
         Scanner sc = new Scanner(System.in);
         while (true) {
@@ -382,10 +424,10 @@ public class Seat {
                 switch (choice) {
                     case "1":
                         printSeat();
-                        seatout();
+                        admin_out_Seat(time);
                         break;
                     case "2":
-                        seatsetting();
+                        seat_setting();
                         break;
                     case "3":
                         System.out.println("메뉴로 돌아갑니다.");

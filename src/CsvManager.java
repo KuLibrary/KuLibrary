@@ -137,4 +137,35 @@ public class CsvManager {
             System.out.println("파일을 쓰는 중 오류가 발생했습니다.");
         }
     }
+
+    public void expandSeatCapacity(int currentCapacity,int newCapacity) {
+        List<Seat> seats = readSeatCsv();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(seatCsvFileName))) {
+            for (Seat seat : seats) {
+                writer.write(seat.getSeatNum() + "," + (seat.getUsing() ? "1" : "0") + "," + seat.getStartTime() + "," + seat.getEndTime());
+                writer.newLine();
+            }
+            // 새로운 좌석 추가
+            for (int i = currentCapacity + 1; i <= newCapacity; i++) {
+                writer.write(i + ",0,000000000000,000000000000");
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void reduceSeatCapacity(int newCapacity) {
+        List<Seat> seats = readSeatCsv();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(seatCsvFileName))) {
+            for (int i = 0; i < newCapacity; i++) {
+                Seat seat =seats.get(i);
+                writer.write(seat.getSeatNum() + "," + (seat.getUsing() ? "1" : "0") + "," + seat.getStartTime() + "," + seat.getEndTime());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
