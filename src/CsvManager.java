@@ -184,6 +184,7 @@ public class CsvManager {
     }
 
 
+
     public void timeSynchronize(String time) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
         LocalDateTime givenTime = LocalDateTime.parse(time, formatter);
@@ -246,4 +247,26 @@ public class CsvManager {
             System.out.println("파일을 읽는 중 오류가 발생했습니다.");
         }
     }
+
+    public void writeSeatCsv(int SEAT_CAPACITY) {
+        List<Seat> seats = readSeatCsv();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(seatCsvFileName))) {
+            for (Seat seat : seats) {
+                if (seat.getUsing()) {
+                    writer.write(seat.getSeatNum() + "," + (seat.getUsing() ? "1" : "0") + "," + seat.getStartTime() + "," + seat.getEndTime());
+                } else {
+                    writer.write(seat.getSeatNum() + ",0,000000000000,000000000000");
+                }
+                writer.newLine();
+            }
+
+            for (int i = seats.size() + 1; i <= SEAT_CAPACITY; i++) {
+                writer.write(i + ",0,000000000000,000000000000");
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

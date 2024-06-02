@@ -91,9 +91,6 @@ public class User {
 
     public User(String time) {
         users = csvManager.readUserCsv();
-        for (int i = 0; i < users.size(); i++) {
-
-        }
         csvManager.writeUserCsv(users);
     }
 
