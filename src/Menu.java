@@ -14,13 +14,16 @@ public class Menu {
         time=date+time;
         System.out.println("사용자가 입력한 날짜와 시간은 " +RegexManager.formatDateTime(time)+"입니다.");
         System.out.println(time);
+        CsvManager csvManager = new CsvManager();
+
+        csvManager.timeSynchronize(time);
         mainMenu(scanner, time);
     }
 
     static void mainMenu(Scanner scanner, String time) {
         User user = new User(time);
         Seat seat = new Seat();
-        CsvManager csvManager = new CsvManager();
+
         while (true) {
             System.out.println("Konkuk library");
             System.out.println("---------------------------");

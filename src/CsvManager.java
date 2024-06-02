@@ -2,9 +2,14 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static java.nio.file.Files.newBufferedReader;
 
@@ -178,4 +183,67 @@ public class CsvManager {
         }
     }
 
+
+    public void timeSynchronize(String time) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+        LocalDateTime givenTime = LocalDateTime.parse(time, formatter);
+
+        List<Seat> seats = readSeatCsv();
+        Set<Integer> resetSeats = new HashSet<>();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(seatCsvFileName))) {
+            for (Seat seat : seats) {
+                LocalDateTime startTime = null;
+                LocalDateTime endTime = null;
+
+                try {
+                    startTime = LocalDateTime.parse(seat.getStartTime(), formatter);
+                } catch (DateTimeParseException e) {
+                    // Handle invalid date format
+                }
+
+                try {
+                    endTime = LocalDateTime.parse(seat.getEndTime(), formatter);
+                } catch (DateTimeParseException e) {
+                    // Handle invalid date format
+                }
+
+                if (startTime == null || endTime == null || givenTime.isBefore(startTime) || givenTime.isAfter(endTime)) {
+                    writer.write(seat.getSeatNum() + ",0,000000000000,000000000000");
+                    resetSeats.add(seat.getSeatNum());
+                } else {
+                    writer.write(seat.getSeatNum() + "," + (seat.getUsing() ? "1" : "0") + "," + seat.getStartTime() + "," + seat.getEndTime());
+                }
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        userCsvTimeSynchronize(resetSeats);
+    }
+    public void userCsvTimeSynchronize(Set<Integer> resetSeats) {
+        Path path = Paths.get(userCsvFileName);
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(path);
+            for (int i = 0; i < lines.size(); i++) {
+                String[] data = lines.get(i).split(",");
+                int usingSeatNum = Integer.parseInt(data[4]);
+                if (resetSeats.contains(usingSeatNum)) {
+                    lines.set(i, data[0] + "," + data[1] + "," + data[2] + "," + data[3] + ",0");
+                }
+            }
+            try (BufferedWriter bw = Files.newBufferedWriter(path)) {
+                for (String line : lines) {
+                    bw.write(line);
+                    bw.newLine();
+                }
+            } catch (IOException e) {
+                System.out.println("파일을 쓰는 중 오류가 발생했습니다.");
+            }
+        } catch (IOException e) {
+            System.out.println("파일을 읽는 중 오류가 발생했습니다.");
+        }
+    }
 }
