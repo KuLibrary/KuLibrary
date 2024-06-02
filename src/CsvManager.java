@@ -70,6 +70,16 @@ public class CsvManager {
         return seats;
     }
 
+    public int getCurrentSeatCount() {
+        int currentSeatCount = 0;
+        List<Seat> seats = readSeatCsv();
+        for (Seat seat : seats) {
+            if (seat.getUsing()) {
+                currentSeatCount++;
+            }
+        }
+        return currentSeatCount;
+    }
     public void updateUserCsv(User user) {
         Path path = Paths.get(userCsvFileName);
         List<String> lines;
