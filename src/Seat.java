@@ -1,17 +1,20 @@
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class Seat {
     final int SEAT_CAPACITY = 100;
     int seatNum; //좌석 번호
     Boolean using = true; // 해당 좌석을 사용중인지 여부
-    LocalTime StartTime;
-    LocalTime EndTime;
+    String StartTime;
+    String EndTime;
 
-    CsvManager csvManager=new CsvManager();
+    static RegexManager regexManager = new RegexManager();
+    CsvManager csvManager = new CsvManager();
 
-    public Seat(int seatNum, Boolean using, LocalTime StartTime, LocalTime EndTime) {
+    public Seat(int seatNum, Boolean using, String StartTime, String EndTime) {
         this.seatNum = seatNum;
         this.using = using;
         this.StartTime = StartTime;
@@ -40,31 +43,58 @@ public class Seat {
         this.using = using;
     }
 
-    public void setTime() {
-        this.StartTime = LocalTime.now();
-        this.EndTime = LocalTime.now().plusHours(5);
+
+    public void resetTime() {
+        this.StartTime = "000000000000";
+        this.EndTime = "000000000000";
     }
 
+
+
+    public void setTime(String time) {
+        // Define the input and output format
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+
+        // Parse the input time to LocalDateTime
+        LocalDateTime dateTime = LocalDateTime.parse(time, formatter);
+
+        // Add 5 hours to the parsed time
+        LocalDateTime updatedDateTime = dateTime.plusHours(5);
+
+        // Format the updated time back to the string format
+
+        this.StartTime = time;
+        this.EndTime = updatedDateTime.format(formatter);
+    }
+
+    public void extensionTime(String time) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+        LocalDateTime dateTime = LocalDateTime.parse(time, formatter);
+        LocalDateTime updatedDateTime = dateTime.plusHours(5);
+
+        this.EndTime = updatedDateTime.format(formatter);
+    }
+
+
     //시작시간 초기파일에서 받을때 00:00
-    public LocalTime getStartTime() {
+    public String getStartTime() {
         if (StartTime == null) {
-            return LocalTime.MIN; // 수정: null 대신 LocalTime.MIN 반환
+            System.out.println("빈 좌석 입니다");
         }
         return StartTime;
     }
 
 
     // 시작시간 초기파일에서 받을때 00:00
-    public LocalTime getEndTime() {
+    public String getEndTime() {
         if (EndTime == null) {
-            return LocalTime.MIN; // 수정: null 대신 LocalTime.MIN 반환
+            System.out.println("빈 좌석 입니다.");
         }
         return EndTime;
     }
 
 
-
-    public void reservation_Menu() {
+    public void reservation_Menu(String time) {
         Scanner sc = new Scanner(System.in);
 
         csvManager.readSeatCsv();
@@ -73,17 +103,20 @@ public class Seat {
             System.out.println("---------------");
             System.out.println("1) 좌석 예약");
             System.out.println("2) 좌석 확인");
-            System.out.println("3) 로그아웃");
+            System.out.println("3) 좌석 퇴실");
+            System.out.println("4) 좌석 연장");
+            System.out.println("5) 로그아웃");
             System.out.println("---------------");
-            try {
-                System.out.println("메뉴 번호를 입력하세요.");
-                System.out.print(">>");
-                String choice = sc.nextLine().trim();
+
+            System.out.println("메뉴 번호를 입력하세요.");
+            System.out.print(">>");
+            String choice = sc.nextLine().trim();
+            if (regexManager.checkFiveMenu(choice)) {
                 switch (choice) {
                     case "1":
-                        if (user.getUsingSeatNum()==0) {
-                            apply_Reservation();
-                        }else {
+                        if (user.getUsingSeatNum() == 0) {
+                            apply_Reservation(time);
+                        } else {
                             System.out.println("이미 이용 중인 좌석이 있습니다.");
                         }
                         break;
@@ -91,19 +124,23 @@ public class Seat {
                         check_Seat();
                         break;
                     case "3":
+                        out_Seat(time);
+                        break;
+                    case "4":
+                        extension_Seat(time);
+                        break;
+                    case "5":
                         System.out.println("메뉴로 돌아갑니다.");
                         return;
                     default:
                         System.out.println("1~3 사이 숫자를 입력하세요");
                 }
-            } catch (NumberFormatException E) {
-                System.out.println("올바른 형식으로 입력하세요!");
             }
         }
     }
 
 
-    public void apply_Reservation() {
+    public void apply_Reservation(String time) {
         int selectSeatNum;
         List<Seat> seats = csvManager.readSeatCsv();
         printSeat();
@@ -136,7 +173,7 @@ public class Seat {
 
                         user.setUsingSeatNum(selectSeatNum); //유저정보 업데이트
                         seat.setUsing(true);
-                        seat.setTime();
+                        seat.setTime(time);
                         user.setStartTime(seat.getStartTime());
                         user.setEndTime(seat.getEndTime());
                         csvManager.updateSeatInCsv(seat);
@@ -257,13 +294,75 @@ public class Seat {
             System.out.println(user.getUserName() + "님의 현재 사용중인 좌석 정보");
             System.out.println("------------------");
             System.out.println("좌석 번호: " + user.getUsingSeatNum());
-            System.out.println("좌석 이용 시작 시간: " + user.getStartTime());
-            System.out.println("좌석 이용 종료 시간: " + user.getEndTime());
-
+            System.out.println("좌석 이용 시작 시간: " + RegexManager.formatDateTime(user.getStartTime()));
+            System.out.println("좌석 이용 종료 시간: " + RegexManager.formatDateTime(user.getEndTime()));
         }
     }
 
+    public void out_Seat(String time) {
+        List<Seat> seats = csvManager.readSeatCsv();
+        csvManager.readSeatCsv();
+        Scanner sc = new Scanner(System.in);
+        if (user.getUsingSeatNum() == 0) {
+            System.out.println(user.getUserName() + "님, 사용중인 좌석이 없습니다");
 
+
+        } else {
+            for (Seat seat : seats) {
+                if (user.getUsingSeatNum() == seat.getSeatNum()) {
+
+                    user.setUsingSeatNum(0); //유저정보 업데이트
+                    seat.setUsing(false);
+                    seat.resetTime();
+                    user.setStartTime(seat.getStartTime());
+                    user.setEndTime(seat.getEndTime());
+                    csvManager.updateSeatInCsv(seat);
+                    csvManager.updateUserCsv(user);
+
+                    System.out.println("좌석 퇴실에 성공했습니다.");
+                    return;
+                }
+            }
+        }
+        System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
+        sc.nextLine();
+    }
+
+    public void extension_Seat(String time) {
+
+        if (user.getUsingSeatNum() == 0) {
+            System.out.println(user.getUserName() + "님, 사용중인 좌석이 없습니다");
+        }else {
+            List<Seat> seats = csvManager.readSeatCsv();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+
+            LocalDateTime endTime = LocalDateTime.parse(user.getEndTime(), formatter);
+            LocalDateTime requestTime = LocalDateTime.parse(time, formatter);
+
+            long minutesDifference = ChronoUnit.MINUTES.between(requestTime, endTime);
+            if (minutesDifference <= 30) {
+                for (Seat seat : seats) {
+                    if (user.getUsingSeatNum() == seat.getSeatNum()) {
+                        seat.extensionTime(time);
+                        user.setEndTime(seat.getEndTime());
+                        csvManager.updateSeatInCsv(seat);
+                        csvManager.updateUserCsv(user);
+                        System.out.println("좌석 연장에 성공했습니다.");
+                        System.out.println("------------------");
+                        System.out.println("좌석 번호: " + user.getUsingSeatNum());
+                        System.out.println("좌석 이용 시작 시간: " + RegexManager.formatDateTime(user.getStartTime()));
+                        System.out.println("좌석 이용 종료 시간: " + RegexManager.formatDateTime(user.getEndTime()));
+                        return;
+                    }
+                }
+            } else {
+                System.out.println("좌석 연장은 이용 종료 30분 전부터 가능합니다.");
+            }
+        }
+
+
+        System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
+    }
 
 
     public void admin_Menu() {

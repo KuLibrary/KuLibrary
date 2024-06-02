@@ -1,5 +1,3 @@
-
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -11,8 +9,8 @@ public class User {
 
     private int usingSeatNum=0; // 이용중인 좌석 (사용중이 아니라면 0)
     private int timeSum=0; // 누적 이용 시간부
-    private LocalTime startTime; // 사용 시작 시간
-    private LocalTime endTime; // 사용 종료 예정 시간
+    private String startTime; // 사용 시작 시간
+    private String endTime; // 사용 종료 예정 시간
     //0000 ~ 2359
     ArrayList<User> users = new ArrayList<>();
     static String admin_id = "admin";
@@ -49,11 +47,11 @@ public class User {
         return timeSum;
     }
 
-    public LocalTime getStartTime() {
+    public String getStartTime() {
         return startTime;
     }
 
-    public LocalTime getEndTime() {
+    public String getEndTime() {
         return endTime;
     }
 
@@ -77,11 +75,11 @@ public class User {
         this.timeSum =timeSum+5;
     }
 
-    public void setEndTime(LocalTime endTime) {
+    public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
 
-    public void setStartTime(LocalTime startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
@@ -89,10 +87,10 @@ public class User {
         csvManager.readUserCsv();
     }
 
-    public User(String date) {
-        users = csvManager.readUserCsv();
+    public User(String time) {
+        csvManager.readUserCsv();
         for (int i = 0; i < users.size(); i++) {
-            int nowDate = Integer.parseInt(date);
+            int nowDate = Integer.parseInt(time);
         }
         csvManager.writeUserCsv(users);
     }
@@ -249,7 +247,7 @@ public class User {
         return flag;
     }
 
-    public void user_Login() {
+    public void user_Login(String time) {
         Scanner sc = new Scanner(System.in);
         csvManager.readUserCsv();
         String uid;
@@ -275,7 +273,7 @@ public class User {
                         System.out.println("아무 키를 누르면 예약 메뉴로 돌아갑니다.");
                         sc.nextLine();
                         Seat seat = new Seat(u);
-                        seat.reservation_Menu(); //seat menu
+                        seat.reservation_Menu(time); //seat menu
                         return;
                     }
             }
@@ -284,7 +282,7 @@ public class User {
         }
     }
 
-    public void admin_Login() {
+    public void admin_Login(String time) {
         Scanner sc = new Scanner(System.in);
         String uid;
         String upwd;

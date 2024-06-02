@@ -1,7 +1,7 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+
 import java.util.Scanner;
+
+
 
 public class Menu {
 
@@ -10,22 +10,15 @@ public class Menu {
     public static void showMenu() {
         Scanner scanner = new Scanner(System.in);
         String date = getDateFromUser(scanner);
-        mainMenu(scanner, date);
+        String time = getTimeFromUser(scanner);
+        time=date+time;
+        System.out.println("사용자가 입력한 날짜와 시간은 " +RegexManager.formatDateTime(time)+"입니다.");
+        System.out.println(time);
+        mainMenu(scanner, time);
     }
 
-    private static String getDateFromUser(Scanner scanner) {
-        String date;
-        do {
-            System.out.println("오늘의 날짜를 YYYYMMDD 형식으로 입력해주세요.(예: 20231031)");
-            System.out.print(">> ");
-            date = scanner.nextLine().trim();
-
-        } while (!regexManager.checkDate(date));
-        return date;
-    }
-
-    static void mainMenu(Scanner scanner, String date) {
-        User user = new User(date);
+    static void mainMenu(Scanner scanner, String time) {
+        User user = new User(time);
         Seat seat = new Seat();
         CsvManager csvManager = new CsvManager();
         //csvManager.initSeatCsv(seat.SEAT_CAPACITY);
@@ -50,14 +43,13 @@ public class Menu {
                         break;
                     case 2:
                         System.out.println("로그인 메뉴로 이동합니다.");
-                        user.user_Login();
+                        user.user_Login(time);
                         break;
                     case 3:
                         System.out.println("관리자 로그인 메뉴로 이동합니다.");
-                        user.admin_Login();
+                        user.admin_Login(time);
                         break;
                     case 4:
-                        //csvManager.writeUserCsv();
                         System.out.println("프로그램을 종료합니다.\n");
                         return;
                 }
@@ -67,19 +59,30 @@ public class Menu {
         }
     }
 
-    static boolean CsvFileChecker() {
-            String csvFilePath = "src/userData.csv";
-            try (BufferedReader br = new BufferedReader(new FileReader(csvFilePath))) {
-                String line = br.readLine();
-                if (line != null) {
-                   return true;
-                } else {
-                    return false;
-                }
-            } catch (IOException e) {
-                System.out.println("CSV 파일 읽기 오류: " + e.getMessage());
-            }
-       return false;
+
+    private static String getDateFromUser(Scanner scanner) {
+        String date;
+        do {
+            System.out.println("오늘의 날짜를 YYYYMMDD 형식으로 입력해주세요.(예: 20231031)");
+            System.out.print(">> ");
+            date = scanner.nextLine().trim();
+
+
+        } while (!regexManager.checkDate(date));
+        return date;
     }
+
+    private static String getTimeFromUser(Scanner scanner) {
+        String time;
+        do {
+            System.out.println("현재 시간을 HHMM 형식으로 입력해주세요.(예: 21시 14분 -> 2114)");
+            System.out.print(">> ");
+            time = scanner.nextLine().trim();
+
+        } while (!regexManager.checkTime(time));
+        return time;
+    }
+
+
 
 }
