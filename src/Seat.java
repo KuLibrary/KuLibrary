@@ -30,6 +30,7 @@ public class Seat {
         this.users = users;
     }
     public Seat() {
+        csvManager.writeSeatCsv(SEAT_CAPACITY);
     }
 
     public int getSeatNum() {
