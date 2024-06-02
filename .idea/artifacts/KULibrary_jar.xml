@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="KULibrary:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/KULibrary_jar</output-path>
+    <root id="archive" name="KULibrary.jar">
+      <element id="module-output" name="KULibrary" />
+    </root>
+  </artifact>
+</component>
