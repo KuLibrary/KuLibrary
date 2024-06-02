@@ -372,7 +372,7 @@ public class Seat {
     }
 
     public void extension_Seat(String time) {
-
+        int currentSeatCount=csvManager.getCurrentSeatCount();
         if (user.getUsingSeatNum() == 0) {
             System.out.println(user.getUserName() + "님, 사용중인 좌석이 없습니다");
         }else {
@@ -382,23 +382,27 @@ public class Seat {
             LocalDateTime requestTime = LocalDateTime.parse(time, formatter);
 
             long minutesDifference = ChronoUnit.MINUTES.between(requestTime, endTime);
-            if (minutesDifference <= 30) {
-                for (Seat seat : seats) {
-                    if (user.getUsingSeatNum() == seat.getSeatNum()) {
-                        seat.extensionTime(time);
-                        user.setEndTime(seat.getEndTime());
-                        csvManager.updateSeatInCsv(seat);
-                        csvManager.updateUserCsv(user);
-                        System.out.println("좌석 연장에 성공했습니다.");
-                        System.out.println("------------------");
-                        System.out.println("좌석 번호: " + user.getUsingSeatNum());
-                        System.out.println("좌석 이용 시작 시간: " + RegexManager.formatDateTime(user.getStartTime()));
-                        System.out.println("좌석 이용 종료 시간: " + RegexManager.formatDateTime(user.getEndTime()));
-                        return;
+            if (currentSeatCount >= (SEAT_CAPACITY * 0.8)) {
+                System.out.println("좌석 연장이 불가능합니다.");
+            }else {
+                if (minutesDifference <= 30) {
+                    for (Seat seat : seats) {
+                        if (user.getUsingSeatNum() == seat.getSeatNum()) {
+                            seat.extensionTime(time);
+                            user.setEndTime(seat.getEndTime());
+                            csvManager.updateSeatInCsv(seat);
+                            csvManager.updateUserCsv(user);
+                            System.out.println("좌석 연장에 성공했습니다.");
+                            System.out.println("------------------");
+                            System.out.println("좌석 번호: " + user.getUsingSeatNum());
+                            System.out.println("좌석 이용 시작 시간: " + RegexManager.formatDateTime(user.getStartTime()));
+                            System.out.println("좌석 이용 종료 시간: " + RegexManager.formatDateTime(user.getEndTime()));
+                            return;
+                        }
                     }
+                } else {
+                    System.out.println("좌석 연장은 이용 종료 30분 전부터 가능합니다.");
                 }
-            } else {
-                System.out.println("좌석 연장은 이용 종료 30분 전부터 가능합니다.");
             }
         }
 
