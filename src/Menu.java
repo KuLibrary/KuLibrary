@@ -21,7 +21,6 @@ public class Menu {
         User user = new User(time);
         Seat seat = new Seat();
         CsvManager csvManager = new CsvManager();
-        //csvManager.initSeatCsv(seat.SEAT_CAPACITY);
         while (true) {
             System.out.println("Konkuk library");
             System.out.println("---------------------------");
