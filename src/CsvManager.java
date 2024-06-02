@@ -60,8 +60,8 @@ public class CsvManager {
                 String[] data = line.split(",");
                 int seatNum = Integer.parseInt(data[0]);
                 boolean using = data[1].equals("1");
-                LocalTime startTime = LocalTime.parse(data[2]);
-                LocalTime endTime = LocalTime.parse(data[3]);
+                String startTime = data[2];
+                String endTime = data[3];
                 seats.add(new Seat(seatNum, using, startTime, endTime));
             }
         } catch (IOException e) {
