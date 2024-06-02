@@ -71,7 +71,7 @@ public class CsvManager {
     }
 
     public void updateUserCsv(User user) {
-        Path path = Paths.get(seatCsvFileName);
+        Path path = Paths.get(userCsvFileName);
         List<String> lines;
         try {
             lines = Files.readAllLines(path);

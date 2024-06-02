@@ -222,6 +222,7 @@ public class User {
         System.out.println("회원가입에 성공하였습니다.\n");
         users.add(newuser);
         csvManager.writeUserCsv(users);
+        //users = csvManager.readUserCsv();
         System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
         sc.nextLine();
     }

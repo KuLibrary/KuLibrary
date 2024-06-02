@@ -184,7 +184,62 @@ public class Seat {
         }
     }
 
+    public void seatout() {
+        int selectSeatNum;
+        List<Seat> seats = csvManager.readSeatCsv();
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            System.out.println("퇴실 시키고자하는 좌석을 입력해주세요. q 입력 시 예약 메뉴로 돌아갑니다.");
+            System.out.print(">> ");
+            String input = sc.nextLine().trim();
+            if (input.equals("q")) {
+                System.out.println();
+                return;
+            } else if (!input.matches("\\d+")) {
+                System.out.println("숫자만 입력해주세요.");
+                continue;
+            }
+            selectSeatNum = Integer.parseInt(input);
+            if (selectSeatNum <= 0 || selectSeatNum > SEAT_CAPACITY) {
+                System.out.println("해당 좌석은 존재하지 않습니다.");
+            }
+            for (Seat seat : seats) {
+                if (selectSeatNum == seat.getSeatNum()) {
+                    if (seat.getUsing()) {
 
+                        seat.setUsing(false);
+                        System.out.println("해당 좌석은 이미 사용중입니다");
+                        System.out.println("다른 좌석을 입력해주세요");
+                        break;
+                        //1차 기획서랑 다르게 메인화면으로 안가고 다시입력받을수있도록함
+                    } else {
+                        System.out.println("좌석 예약에 성공했습니다.");
+
+                        user.setUsingSeatNum(selectSeatNum); //유저정보 업데이트
+                        seat.setUsing(true);
+                        seat.setTime();
+                        user.setStartTime(seat.getStartTime());
+                        user.setEndTime(seat.getEndTime());
+                        csvManager.updateSeatInCsv(seat);
+                        csvManager.updateUserCsv(user);
+                        System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
+                        sc.nextLine();
+                        return;
+                    }
+                }
+            }
+
+            System.out.println("아무 키를 누르면 메인 메뉴로 이동합니다.");
+            sc.nextLine();
+            return;
+        }
+
+
+    }
+
+    public void seatsetting() {
+
+    }
 
 
 
@@ -215,10 +270,11 @@ public class Seat {
 
         Scanner sc = new Scanner(System.in);
         while (true) {
-            System.out.println("<어드민 메뉴>");
+            System.out.println("<관리자 메뉴>");
             System.out.println("---------------");
-            System.out.println("1) 좌석 현황");
-            System.out.println("2) 로그아웃");
+            System.out.println("1) 좌석 현황 확인 및 좌석 강제퇴실");
+            System.out.println("2) 좌석 수 조정");
+            System.out.println("3) 로그아웃");
             System.out.println("---------------");
             try {
                 System.out.println("메뉴 번호를 입력하세요.");
@@ -227,12 +283,16 @@ public class Seat {
                 switch (choice) {
                     case "1":
                         printSeat();
+                        seatout();
                         break;
                     case "2":
+                        seatsetting();
+                        break;
+                    case "3":
                         System.out.println("메뉴로 돌아갑니다.");
                         return;
                     default:
-                        System.out.println("1~2 사이 숫자를 입력하세요");
+                        System.out.println("1~3 사이 숫자를 입력하세요");
                 }
             } catch (NumberFormatException E) {
                 System.out.println("올바른 형식으로 입력하세요!");
