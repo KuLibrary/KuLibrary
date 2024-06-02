@@ -95,19 +95,7 @@ public class RegexManager {
         }
     }
 
-    public static String formatDate(String date) {
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-        LocalDate localDate = LocalDate.parse(date, inputFormatter);
-        return localDate.format(outputFormatter);
-    }
 
-    public static String formatTime(String time) {
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("HHmm");
-        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("HH시 mm분");
-        LocalTime localTime = LocalTime.parse(time, inputFormatter);
-        return localTime.format(outputFormatter);
-    }
 
     public static String formatDateTime(String dateTime) {
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
