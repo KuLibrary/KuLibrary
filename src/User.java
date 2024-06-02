@@ -90,7 +90,7 @@ public class User {
     }
 
     public User(String date) {
-        csvManager.readUserCsv();
+        users = csvManager.readUserCsv();
         for (int i = 0; i < users.size(); i++) {
             int nowDate = Integer.parseInt(date);
         }

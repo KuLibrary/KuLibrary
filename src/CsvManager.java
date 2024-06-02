@@ -13,7 +13,6 @@ public class CsvManager {
     final String userCsvFileName = "src/userData.csv";
     final String seatCsvFileName = "src/seatData.csv";
 
-
     public void writeUserCsv( ArrayList<User> users) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(userCsvFileName));
@@ -26,9 +25,9 @@ public class CsvManager {
         }
     }
 
-    public void readUserCsv() {
+    public ArrayList<User> readUserCsv() {
         BufferedReader br;
-
+        ArrayList<User> users = new ArrayList<>();
         try (FileReader fileReader = new FileReader(userCsvFileName)) {
             br = newBufferedReader(Paths.get(userCsvFileName));
             String line;
@@ -38,7 +37,7 @@ public class CsvManager {
                     break;
                 }
                 String[] array = line.split(",");
-                User user = new User(array[0], array[1], array[2], array[3],Integer.parseInt((array[4])));
+                users.add(new User(array[0], array[1], array[2], array[3],Integer.parseInt((array[4]))));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -49,6 +48,7 @@ public class CsvManager {
             System.out.println("회원 정보 파일이 없습니다.\n프로그램을 종료합니다.");
             System.exit(0);
         }
+        return users;
     }
 
     public List<Seat> readSeatCsv() {
@@ -89,10 +89,10 @@ public class CsvManager {
                     bw.newLine();
                 }
             } catch (IOException e) {
-                System.out.println("파일을 쓰는 중 오류가 발생했습니.");
+                System.out.println("파일을 쓰는 중 오류가 발생했습니다.");
             }
         } catch (IOException e) {
-            System.out.println("파일을 읽는 중 오류가 발생했습니.");
+            System.out.println("파일을 읽는 중 오류가 발생했습니다.");
         }
     }
 

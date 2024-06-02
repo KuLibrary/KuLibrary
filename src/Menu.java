@@ -1,4 +1,6 @@
-
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Menu {
@@ -25,7 +27,7 @@ public class Menu {
     static void mainMenu(Scanner scanner, String date) {
         User user = new User(date);
         Seat seat = new Seat();
-        CsvManager csvManager=new CsvManager();
+        CsvManager csvManager = new CsvManager();
         csvManager.initSeatCsv(seat.SEAT_CAPACITY);
         while (true) {
             System.out.println("Konkuk library");
@@ -55,6 +57,7 @@ public class Menu {
                         user.admin_Login();
                         break;
                     case 4:
+                        //csvManager.writeUserCsv();
                         System.out.println("프로그램을 종료합니다.\n");
                         return;
                 }
@@ -64,5 +67,19 @@ public class Menu {
         }
     }
 
+    static boolean CsvFileChecker() {
+            String csvFilePath = "src/userData.csv";
+            try (BufferedReader br = new BufferedReader(new FileReader(csvFilePath))) {
+                String line = br.readLine();
+                if (line != null) {
+                   return true;
+                } else {
+                    return false;
+                }
+            } catch (IOException e) {
+                System.out.println("CSV 파일 읽기 오류: " + e.getMessage());
+            }
+       return false;
+    }
 
 }
