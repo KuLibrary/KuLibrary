@@ -378,7 +378,7 @@ public class Seat {
         }else {
             List<Seat> seats = csvManager.readSeatCsv();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-            LocalDateTime endTime = LocalDateTime.parse(user.getEndTime(), formatter);
+            LocalDateTime endTime = LocalDateTime.parse(time, formatter);
             LocalDateTime requestTime = LocalDateTime.parse(time, formatter);
 
             long minutesDifference = ChronoUnit.MINUTES.between(requestTime, endTime);
@@ -392,8 +392,8 @@ public class Seat {
                         System.out.println("좌석 연장에 성공했습니다.");
                         System.out.println("------------------");
                         System.out.println("좌석 번호: " + user.getUsingSeatNum());
-                        System.out.println("좌석 이용 시작 시간: " + RegexManager.formatDateTime(user.getStartTime()));
-                        System.out.println("좌석 이용 종료 시간: " + RegexManager.formatDateTime(user.getEndTime()));
+                        System.out.println("좌석 이용 시작 시간: " + RegexManager.formatDateTime(seat.getStartTime()));
+                        System.out.println("좌석 이용 종료 시간: " + RegexManager.formatDateTime(seat.getEndTime()));
                         return;
                     }
                 }
