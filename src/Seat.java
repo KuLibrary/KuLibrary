@@ -386,9 +386,6 @@ public class Seat {
 
     public void extension_Seat(String time) {
         int currentSeatCount=csvManager.getCurrentSeatCount();
-        System.out.println(currentSeatCount);
-        System.out.println(SEAT_CAPACITY);
-        System.out.println(SEAT_CAPACITY * 0.8);
         if (user.getUsingSeatNum() == 0) {
             System.out.println(user.getUserName() + "님, 사용중인 좌석이 없습니다");
         }else {

@@ -13,7 +13,6 @@ public class Menu {
         String time = getTimeFromUser(scanner);
         time=date+time;
         System.out.println("사용자가 입력한 날짜와 시간은 " +RegexManager.formatDateTime(time)+"입니다.");
-        System.out.println(time);
         CsvManager csvManager = new CsvManager();
 
         csvManager.timeSynchronize(time);
