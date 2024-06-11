@@ -5,11 +5,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class Seat {
-    int SEAT_CAPACITY = 30;
+    int SEAT_CAPACITY;
     int seatNum; //좌석 번호
     Boolean using = true; // 해당 좌석을 사용중인지 여부
     String StartTime;
     String EndTime;
+    private static Seat instance;
 
     static RegexManager regexManager = new RegexManager();
     CsvManager csvManager = new CsvManager();
@@ -20,16 +21,27 @@ public class Seat {
         this.StartTime = StartTime;
         this.EndTime = EndTime; // 수정: 생성자에서 EndTime을 바로 설정
     }
-
+    public static Seat getInstance() {
+        if (instance == null) {
+            instance = new Seat(30); //좌석 수 기본값
+        }
+        return instance;
+    }
     User user = new User();
     ArrayList<User> users = new ArrayList<>(); //유저 리스트
-    public Seat(User user) {
-        this.user = user;
+    public Seat(int SEAT_CAPACITY) {
+        this.SEAT_CAPACITY = 30;
     }
-    public Seat(ArrayList<User> users) {
+    public void setUsers(ArrayList<User> users) {
         this.users = users;
     }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public Seat() {
+        this.SEAT_CAPACITY = 30;
         csvManager.writeSeatCsv(SEAT_CAPACITY);
     }
 
@@ -374,6 +386,9 @@ public class Seat {
 
     public void extension_Seat(String time) {
         int currentSeatCount=csvManager.getCurrentSeatCount();
+        System.out.println(currentSeatCount);
+        System.out.println(SEAT_CAPACITY);
+        System.out.println(SEAT_CAPACITY * 0.8);
         if (user.getUsingSeatNum() == 0) {
             System.out.println(user.getUserName() + "님, 사용중인 좌석이 없습니다");
         }else {

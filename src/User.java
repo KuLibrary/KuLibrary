@@ -12,7 +12,7 @@ public class User {
     private String startTime; // 사용 시작 시간
     private String endTime; // 사용 종료 예정 시간
 
-    //Seat userseat = new Seat();
+
     //0000 ~ 2359
     ArrayList<User> users = new ArrayList<>();
     static String admin_id = "admin";
@@ -271,7 +271,8 @@ public class User {
                         System.out.println("로그인 성공!");
                         System.out.println("아무 키를 누르면 예약 메뉴로 돌아갑니다.");
                         sc.nextLine();
-                        Seat seat = new Seat(u);
+                        Seat seat = Seat.getInstance();
+                        seat.setUser(u);
                         seat.reservation_Menu(time); //seat menu
                         return;
                     }
@@ -301,7 +302,8 @@ public class User {
             }
             if (uid.equals("admin")) {
                 if (upwd.equals("1234")) {
-                    Seat seat = new Seat(users);
+                    Seat seat = Seat.getInstance();
+                    seat.setUsers(users);
                     seat.admin_Menu(time);
                     return;
                 }
